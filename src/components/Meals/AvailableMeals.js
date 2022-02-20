@@ -11,7 +11,12 @@ const AvailableMeals = () => {
   const [httpError, setHttpError] = useState();
   useEffect(() =>{
     const fetchMeals = async () => {
-      const response = await fetch('https://react-http-3bf2b-default-rtdb.europe-west1.firebasedatabase.app/Meals.jso');
+      const response = await fetch('https://react-http-3bf2b-default-rtdb.europe-west1.firebasedatabase.app/Meals.json');
+
+      if(!response.ok){
+        throw new Error('Something went wrong')
+      }
+
       const responseData = await response.json()
       const loadedMeals = [];
 
@@ -23,18 +28,27 @@ const AvailableMeals = () => {
           description: responseData[key].description,
           price: responseData[key].price
         })
-      }
+      };
       setMeals(loadedMeals)
       setIsLoading(false)
-    }
-    fetchMeals()
-    
-  },[])
+    };
+      fetchMeals().catch((error)=>{
+        setIsLoading(false);
+        setHttpError(error.message);
+      });   
+  },[]);
   if(isLoading){
     return (
-
     <section className={classes.MealsLoading}>
      <h1>Loading...</h1>
+    </section>
+      )
+  };
+
+  if(httpError){
+    return (
+    <section className={classes.MealsError}>
+     <h1>{httpError}</h1>
     </section>
       )
   }
